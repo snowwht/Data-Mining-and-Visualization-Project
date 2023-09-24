@@ -1,0 +1,584 @@
+---
+title: "AOL Data Mining and Visualization"
+author: "Group 6"
+date: '2022-05-21'
+output: html_document
+---
+
+Group 6
+2540134092 - Sebastian Hariman
+2502020970 - Snow White Putri Safa
+2501970531 - Sekar Alisha Firdaus
+2540128650 - Olivia Intan Permata Dewi
+2502029370 - Johnny
+
+
+Data Description:
+Score: Score of happiness
+GDP.per.capita : Effect Gross Domestic Product per capita
+Social.support : Effect Social Support
+Healthy.life.expectancy : Effect Health Life Expectancy
+Freedom.to.make.life.choices : Effect Freedom Life Choices
+Generosity : Effect to help each other
+Perceptions.of.corruption : Effect incident corruption
+
+
+# Exploratory Data Analysis
+```{r}
+library(RCurl)
+happiness <-'https://raw.githubusercontent.com/sebastianhariman/datahappiness/main/2019.csv'
+happiness <- read.csv(url(happiness))
+head(happiness)
+```
+```
+__Explanation__
+Import dataset menggunakan link dengan variable 'happiness', kemudian menampilkan data teratas.
+
+```
+
+
+```{r}
+library(MASS)
+dim(happiness)
+```
+```
+__Explanation__
+Dataset happiness memiliki 156 baris dan 9 kolom.
+
+```
+
+
+```{r}
+str(happiness)
+```
+```
+__Explanation__
+Dataset happiness memiliki terdapat 9 variable yang berisikan 1 variable bersifat “integer”, 1 variable bersifat “character”, dan 7 variable bersifat “numeric”.
+
+```
+
+
+```{r}
+summary(happiness)
+```
+```
+__Explanation__
+Summary yang akan menampilkan nilai minimal, kuartil 1, median, mean, kuartil 3, maksimum pada semua variabel kecuali variable Country.or.region,di variable Country.or.region akan menampilkan length, class, dan mode. Dari summary statistic juga bisa dilihat variable seperti Score, Social.support, Generosity memiliki mean dan median yang setara. Hal tersebut menunjukan bahwa variabel-variable tersebut terdistribusi normal.
+
+```
+
+
+
+## Cleaning the data
+```{r}
+colSums(is.na(happiness))
+```
+```
+__Explanation__
+Dataset happiness tidak memiliki missing value.
+
+```
+
+
+
+## Check Duplicate(unique)
+```{r}
+sum(duplicated(happiness))
+```
+```
+__Explanation__
+Dataset happiness tidak memiliki data yang duplikat.
+
+```
+
+
+
+### Change GDP.per.capita to categorical
+```{r}
+happiness <- within(happiness, {   
+  GDP.per.capita.cat <- NA
+  GDP.per.capita.cat[GDP.per.capita < 0.400] <- "Low"
+  GDP.per.capita.cat[GDP.per.capita >= 0.400 & GDP.per.capita < 0.800] <- "Lower-Middle"
+  GDP.per.capita.cat[GDP.per.capita >= 0.800 & GDP.per.capita < 1.200] <- "Upper-Middle"
+  GDP.per.capita.cat[GDP.per.capita >= 1.200] <- "High"})
+
+head(happiness)
+```
+```
+__Explanation__
+Mengubah variable GDP.per.capita menjadi kategorikal dan membuat variable baru yaitu 'GDP.per.capita.cat', dengan syarat nilai dibawah 0.500 diubah menjadi 'Low', nilai diantara 0.500 hingga 1.000 diubah menjadi 'Middle' dan nilai diatas 1.000 diubah menjadi 'High'.
+
+```
+
+
+```{r}
+happiness$GDP.per.capita.cat <- factor(happiness$GDP.per.capita.cat, levels = c("High", "Upper-Middle", "Lower-Middle", "Low"))
+summary(happiness$GDP.per.capita.cat)
+```
+```
+__Explanation__
+Terdapat 44 negara yang termasuk kategori 'High' pada GDP.per.capita, 57 negara yang termasuk kategori 'Upper-Middle' pada GDP.per.capita, 29 negara yang termasuk kategori 'Lower-Middle' pada GDP.per.capita, dan 26 negara yang termasuk kategori 'Low' pada GDP.per.capita.
+
+```
+
+
+
+## Univariate Analysis
+```{r}
+plot(happiness$Score,
+      main = "Score")
+med <- median(happiness$Score)
+abline(h = med, 
+      lty = 3, 
+      lwd = 2)
+
+
+plot(happiness$Social.support,
+      main = "Social support")
+med1 <- median(happiness$Social.support)
+abline(h = med1, 
+      lty = 3, 
+      lwd = 2)
+
+
+plot(happiness$Healthy.life.expectancy,
+      main = "Healthy life expectancy")
+med2 <- median(happiness$Healthy.life.expectancy)
+abline(h = med2, 
+      lty = 3, 
+      lwd = 2)
+
+
+plot(happiness$Freedom.to.make.life.choices,
+      main = "Freedom to make life choices")
+med3 <- median(happiness$Freedom.to.make.life.choices)
+abline(h = med3, 
+      lty = 3, 
+      lwd = 2)
+
+
+plot(happiness$Generosity,
+      main = "Generosity")
+med4 <- median(happiness$Generosity)
+abline(h = med4, 
+      lty = 3, 
+      lwd = 2)
+
+
+
+plot(happiness$Perceptions.of.corruption,
+      main = "Perceptions of corruption")
+med5 <- median(happiness$Perceptions.of.corruption)
+abline(h = med5, 
+      lty = 3, 
+      lwd = 2)
+
+
+plot(happiness$GDP.per.capita.cat,
+     main = "GDP per Capita",
+     col = 'orange')
+
+med
+med1
+med2
+med3
+med4
+med5
+```
+```
+__Explanation__
+Pada plot Score, menunjukkan score tertinggi hingga terendah semua negara pada dataset happiness.
+
+Pada plot Social.support, nilai rata-rata Social.support pada semua negara yaitu diatas 1.0 dengan median 1.2715, variable Social.support terdistribusi.
+
+Pada plot Healthy.life.expectancy, nilai rata-rata Healthy.life.expectancy pada semua negara yaitu diatas 0.2 dengan median 0.789.
+
+Pada plot Freedom.to.make.life.choices, nilai rata-rata Freedom.to.make.life.choices pada semua negara yaitu diatas 0.2 dengan median 0.417.
+
+Pada plot Generosity, nilai rata-rata Generosity pada semua negara yaitu dibawah 0.3 dengan median 0.1775, varible Generosity terdistribusi.
+
+Pada plot Perceptions.of.corruption, nilai rata-rata Perceptions.of.corruption pada semua negara yaitu dibawah 0.3 dengan median 0.0855.
+
+Pada plot GDP.per.capita.cat, High memiliki nilai diatas 40, Upper-Middle memiliki nilai diatas 50, Lower-Middle memiliki nilai diatas 20, dan Low memiliki nilai diatas 20.
+
+```
+
+
+
+## Bivariate Analysis
+```{r}
+library(ggplot2)
+
+ggplot(data = happiness, aes(x = Score, y = Social.support)) +      
+      #geom > untuk garis regresi
+      geom_smooth(method="lm", col = "red") +
+      #untuk menambah titik-titik
+      geom_point(col = "orange")
+```
+
+```
+__Explanation__
+Grafik diatas menunjukkan linearitas dari 2 variable, yaitu Score dan Social.support, semakin tinggi nilai Social.support yang dimiliki semakin tinggi nilai Score yang didapat.
+
+```
+
+
+```{r}
+ggplot(data = happiness, aes(x = Score, y = Healthy.life.expectancy)) +      
+      geom_smooth(method="lm", col = "red") +
+      geom_point(col = "orange")
+```
+```
+__Explanation__
+Grafik diatas menunjukkan linearitas dari 2 variable, yaitu Score dan Healthy.life.expectancy, semakin tinggi nilai Healthy.life.expectancy dimiliki semakin tinggi Score yang didapat.
+
+```
+
+
+```{r}
+str(happiness)
+```
+```
+__Explanation__
+Dataset happiness yang terbaru memiliki 1 variable bersifat “integer”, 1 variable bersifat “character”, 7 variable bersifat “numeric”, dan 1 variable bersifat "factor".
+
+```
+
+
+## Checking Correlation
+```{r}
+happiness = happiness[, c(1, 3:9)]
+
+library(Hmisc)
+rcorr(as.matrix(happiness))
+```
+```
+__Explanation__
+Mengambil data dari kolom 1 dan 3-9, karena data kolom 2 bertipe data karakter dan data kolom 10 bersifat factor. Kemudian mencari korelasi menggunakan fungsi rcorr. Dari tabel korelasi, GDP.per.capita, Social.support, Healthy.life.expectancy memiliki korelasi yang tinggi terhadap variabel target yakni Score. Sedangkan variable Freedom.to.make.life.choices, Generosity dan Perceptions.of.corruption memiliki korelasi yang rendah dengan variable Score, tetapi masih dipakai karena memiliki korelasi yang rendah dengan variabel x lainnya. 
+
+```
+
+
+### Remove columns 1
+```{r}
+happiness = happiness[-(1)]
+head(happiness)
+```
+```
+__Explanation__
+Variable Overall.rank memiliki coeficent correlation yg tinggi dengan sesama variable x yaitu GDP.per.capita., variable Overall.rank juga tidak relevan karena hanya berisi urutan ranking dari 1 hingga terakhir (seperti index) sehingga variable tersebut dihapus.
+
+```
+
+
+
+## Check Normality
+```{r}
+hist.data.frame(happiness)
+```
+```
+__Explanation__
+Dari histogram kita dapat melihat bahwa variable Score memiliki bentuk seperti bel yg berarti data di variable Score terdistribusi normal, variable Social.support terdistribusi skewness negatif, dan variable Generosity terdistribusi skewness positif.
+
+```
+
+
+
+## Check Outlier
+```{r}
+par(mfrow = c (2, 2))
+
+#THREE-SIGMA EDIT RULE
+par(mar = c(2,4,3,2))
+me <- mean(happiness$Score)
+std <- sd(happiness$Score)
+
+up <- me + 3 * std
+low <- me - 3 * std
+ 
+plot(happiness$Score, 
+     main = "Three-sigma Edit Rule (Score)", 
+     ylim = c(0, 10))
+abline(h = up, 
+       lty = 3, 
+       lwd = 2,
+       col = "blue")
+abline(h = me, 
+       lty = 3, 
+       lwd = 2)
+abline(h = low, 
+       lty = 3, 
+       lwd = 2,
+       col = "red")
+
+
+#HAMPEL IDENTIFIER
+par(mar = c(2,4,3,2))
+med <- median(happiness$Score)
+md <- mad(happiness$Score)
+
+upper <- med + 3 * md
+lower <- med - 3 * md
+
+  
+plot(happiness$Score, 
+     main = "Hampel Identifier (Score)",
+     ylim = c(0, 10))
+abline(h = upper, 
+       lty=2, 
+       lwd=1, 
+       col="blue")
+abline(h = med, 
+       lty = 3, 
+       lwd = 2)
+abline(h = lower, 
+       lty=3, 
+       lwd=2, 
+       col = "red")
+
+
+#BOXPLOT RULE
+par(mar = c(2,4,3,2))
+out <- boxplot.stats(happiness$Score)$out
+
+boxplot(happiness$Score, 
+        ylab = "",
+        main = "Boxplot Rule (Score)",
+        ylim = c(0, 10))
+mtext(paste("Outliers: ", 
+      paste(out, collapse = ", ")))
+```
+
+```{r}
+ThreeSigma <- function(x, t = 3){
+
+ mu <- mean(x, na.rm = TRUE)
+ sig <- sd(x, na.rm = TRUE)
+ if (sig == 0){
+ message("All non-missing x-values are identical")
+}
+ up <- mu + t * sig
+ down <- mu - t * sig
+ out <- list(up = up, down = down)
+ return(out)
+ }
+
+Hampel <- function(x, t = 3){
+
+ mu <- median(x, na.rm = TRUE)
+ sig <- mad(x, na.rm = TRUE)
+ if (sig == 0){
+ message("Hampel identifer implosion: MAD scale estimate is zero")
+ }
+ up <- mu + t * sig
+ down <- mu - t * sig
+ out <- list(up = up, down = down)
+ return(out)
+ }
+   
+BoxplotRule<- function(x, t = 1.5){
+
+ xL <- quantile(x, na.rm = TRUE, probs = 0.25, names = FALSE)
+ xU <- quantile(x, na.rm = TRUE, probs = 0.75, names = FALSE)
+ Q <- xU - xL
+ if (Q == 0){
+ message("Boxplot rule implosion: interquartile distance is zero")
+ }
+ up <- xU + t * Q
+ down <- xL - t * Q
+ out <- list(up = up, down = down)
+ return(out)
+}   
+
+ExtractDetails <- function(x, down, up){
+
+ outClass <- rep("N", length(x))
+ indexLo <- which(x < down)
+ indexHi <- which(x > up)
+ outClass[indexLo] <- "L"
+ outClass[indexHi] <- "U"
+ index <- union(indexLo, indexHi)
+ values <- x[index]
+ outClass <- outClass[index]
+ nOut <- length(index)
+ maxNom <- max(x[which(x <= up)])
+ minNom <- min(x[which(x >= down)])
+ outList <- list(nOut = nOut, lowLim = down,
+ upLim = up, minNom = minNom,
+ maxNom = maxNom, index = index,
+ values = values,
+ outClass = outClass)
+ return(outList)
+ }
+```
+
+```{r}
+FindOutliers <- function(x, t3 = 3, tH = 3, tb = 1.5){
+ threeLims <- ThreeSigma(x, t = t3)
+ HampLims <- Hampel(x, t = tH)
+ boxLims <- BoxplotRule(x, t = tb)
+
+ n <- length(x)
+ nMiss <- length(which(is.na(x)))
+
+ threeList <- ExtractDetails(x, threeLims$down, threeLims$up)
+ HampList <- ExtractDetails(x, HampLims$down, HampLims$up)
+ boxList <- ExtractDetails(x, boxLims$down, boxLims$up)
+
+ sumFrame <- data.frame(method = "ThreeSigma", n = n,
+ nMiss = nMiss, nOut = threeList$nOut,
+ lowLim = threeList$lowLim,
+ upLim = threeList$upLim,
+ minNom = threeList$minNom,
+ maxNom = threeList$maxNom)
+ upFrame <- data.frame(method = "Hampel", n = n,
+ nMiss = nMiss, nOut = HampList$nOut,
+ lowLim = HampList$lowLim,
+ upLim = HampList$upLim,
+ minNom = HampList$minNom,
+ maxNom = HampList$maxNom)
+ sumFrame <- rbind.data.frame(sumFrame, upFrame)
+ upFrame <- data.frame(method = "BoxplotRule", n = n,
+ nMiss = nMiss, nOut = boxList$nOut,
+ lowLim = boxList$lowLim,
+ upLim = boxList$upLim,
+ minNom = boxList$minNom,
+ maxNom = boxList$maxNom)
+ sumFrame <- rbind.data.frame(sumFrame, upFrame)
+
+ threeFrame <- data.frame(index = threeList$index,
+ values = threeList$values,
+ type = threeList$outClass)
+ HampFrame <- data.frame(index = HampList$index,
+ values = HampList$values,
+ type = HampList$outClass)
+ boxFrame <- data.frame(index = boxList$index,
+ values = boxList$values,
+ type = boxList$outClass)
+ outList <- list(summary = sumFrame, threeSigma = threeFrame,
+ Hampel = HampFrame, boxplotRule = boxFrame)
+ return(outList)
+}
+```
+
+
+```{r}
+fullSummary <- FindOutliers(happiness$Score)
+fullSummary$summary
+```
+```
+__Explanation__
+Dari ketiga metode yang digunakan yakni three sigma rule, hampel identifier dan boxplot rule, dapat kita lihat variable Score ini tidak ada terdapat outliers. Hal tersebut menunjukkan variable Score memiliki distribusi data yang normal.
+
+```
+
+
+
+### Check Linearity
+```{r}
+pairs(~ Score +., data = happiness, main = "World Happiness")
+```
+```__Explanation__
+Plot diatas menunjukkan hubungan linieritas antara variabel target yakni Score dengan variabel x lainnya. Dari plot bisa dilihat variable GDP.per.capita, Social.support, dan Healthy.life.expectancy menunjukkan linearitas.
+
+```
+
+
+
+## Building Multiple Linear Regression Model
+```{r}
+fit1=lm(Score~ +. ,data=happiness)
+summary(fit1)
+plot(fit1, which = 1)
+```
+```
+__Explanation__
+Pada bagian fitting 1 menggunakan semua variable, jika kita lihat di bagian summary terlihat bahwa variable yang memungkinkan untuk digunakan adalah GDP.per.capita + Social.support + Freedom.to.make.life.choices, hal ini dikarenakan variable tersebut memiliki scale of correlation coefficient yang tinggi.
+
+```
+
+
+```{r}
+fit2 <- lm(Score~ Social.support + Healthy.life.expectancy + Freedom.to.make.life.choices, data= happiness)
+summary(fit2)
+```
+```
+__Explanation__
+Pada bagian fitting 2, kita mempersempit penggunaan variabel menjadi hanya menggunakan GDP.per.capita + Social.support + Freedom.to.make.life.choices karena scale of correlation coefficient yang tinggi, dan memberikan hasil peningkatan pada f statistic dari 87.62 menjadi 151.7.
+
+```
+
+
+```{r}
+fit3 <- lm(log(Score)~ Social.support + Healthy.life.expectancy, data= happiness)
+summary(fit3)
+plot(fit3, which = 1)
+```
+```
+__Explanation__
+Pada bagian fitting 3 menggunakan log untuk memperkecil jarak, menggunakan variable GDP.per.capita + Freedom.to.make.life.choices dari fitting 2 kecuali Social.support karena mempunyai p value yang lebih besar dibanding GDP.per.capita dan Freedom.to.make.life.choices., dan memberikan hasil peningkatan pada f statistic dari 151.7 menjadi 193.7.
+
+```
+
+
+
+## Create Training and Testing Set
+```{r}
+library(caret)
+set.seed(1)
+validation_index = createDataPartition(happiness$Score, p=0.8, list = FALSE)
+validationset = happiness[-validation_index,]
+trainingset = happiness[validation_index,]
+```
+
+```{r}
+#check testingset dimension
+dim(validationset)
+head(validationset)
+
+#check trainingset dimension
+dim(trainingset)
+```
+```
+__Explanation__
+Menggunakan 80% (128 baris dan 7 kolom) dataset untuk trainingset dan 20% (28 baris dan 7 kolom) untuk validationset atau testingset. 
+```
+
+
+```{r}
+prediction <- predict(fit3, validationset)
+
+validationset$predicted <- predict(fit3, validationset)
+actualPredict <- data.frame(validationset$Score, validationset$predicted, 
+                            validationset$Score - validationset$predicted)
+
+names(actualPredict) <- c ("Score", "Predicted", "Residuals")
+corr_accuracy <- cor(actualPredict)
+corr_accuracy
+```
+```
+__Explanation__
+Pada tabel diatas, terlihat bahwa korelasi model menunjukkan akurasi nilai Score sekitar 82%. 
+
+```
+
+
+```{r}
+#exp > exponential
+plot(exp(prediction), validationset$Score,
+     main = "Predicted Score Vs Actual Score",
+     xlab="Predicted Score",
+     xlim = c(0, 15),
+     ylab="Actual Score", 
+     ylim = c(0, 15),
+     col="orange",
+     pch = 19)
+abline(a=0, b=1)
+```
+```
+__Explanation__
+Pada sumbu x menampilkan Predicted Score dari model, dan sumbu y menampilkan Actual Score dari data yang dikumpulkan. Garis yang diagonal merupakan garis regresi yang diperkirakan.
+
+Model regresi yang kami gunakan cukup baik, karena masing-masing titik data terletak dekat dengan perkiraan garis regresi, dan juga merupakan fitted values.
+
+```
